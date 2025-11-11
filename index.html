@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Educated Class - Admit Card Portal</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      background: linear-gradient(135deg,#e9f0ff,#f6f8ff); 
+      margin:0; 
+      padding:0; 
+    }
+    header { 
+      text-align:center; 
+      background-color:#0a1a3d; 
+      color:white; 
+      padding:18px 10px; 
+    }
+    header img{ width:80px; height:80px; }
+    .container { 
+      max-width:700px; 
+      margin:30px auto; 
+      background:white; 
+      border-radius:12px; 
+      box-shadow:0 0 20px rgba(0,0,0,0.1); 
+      padding:20px; 
+    }
+    .search-box { 
+      text-align:center; 
+      margin-bottom:16px; 
+    }
+    input { 
+      padding:10px; 
+      width:40%; 
+      font-size:16px; 
+      border-radius:8px; 
+      border:2px solid #0a1a3d; 
+      outline:none; 
+      margin:4px;
+    }
+    button { 
+      background:#0a1a3d; 
+      color:white; 
+      border:none; 
+      padding:10px 16px; 
+      border-radius:8px; 
+      cursor:pointer; 
+      margin-left:8px; 
+    }
+    button:hover{ background:#122b66; }
+    .card{ 
+      border:2px solid #0a1a3d; 
+      padding:18px; 
+      border-radius:10px; 
+      background:#f8faff; 
+      margin-top:10px; 
+    }
+    table{ 
+      width:100%; 
+      border-collapse:collapse; 
+      margin-top:10px; 
+    }
+    th,td{ 
+      border:1px solid #0a1a3d; 
+      padding:8px; 
+      text-align:center; 
+    }
+    th{ background:#0a1a3d; color:#fff; }
+    .print-btn{ 
+      display:block; 
+      margin:12px auto; 
+      background:#008c4a; 
+      color:#fff; 
+      border:none; 
+      padding:10px 14px; 
+      border-radius:6px; 
+      cursor:pointer; 
+    }
+    .note{ 
+      text-align:center; 
+      margin-top:8px; 
+      color:#444; 
+      font-size:13px; 
+    }
+
+    /* Print: only admit card */
+    @media print{
+      body * { visibility:hidden; }
+      .card, .card * { visibility:visible; }
+      .card { position:absolute; top:0; left:0; width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="School Logo" />
+    <h1>SUPER EDUCATED CLASS</h1>
+    <p style="margin:4px 0 0;color:#d9e2ff;">Shekpur Daud, Azamgarh</p>
+  </header>
+
+  <div class="container">
+    <div class="search-box">
+      <input id="nameInput" type="text" placeholder="Enter Student Name" />
+      <input id="rollInput" type="text" placeholder="Enter Roll Number" />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <div id="result"></div>
+    <p class="note">Enter both Name and Roll Number to view Admit Card.</p>
+  </div>
+
+  <script>
+    const students = [
+      { name: "SURAJ PRAJAPATI", father: "KAILASH PRAJAPATI", class: "4th", roll: "5", admitId: "025SEC70" },
+      { name: "SHIMANSHU PRAJAPATI", father: "GUDDU PRAJAPATI", class: "6th", roll: "12", admitId: "025SECPV" },
+      { name: "ANAND PRAJAPATI", father: "DINESH PRAJAPATI", class: "7th", roll: "11", admitId: "025SECMG" },
+      { name: "AMAN PAL", father: "LAL BAHADUR PAL", class: "6th", roll: "10", admitId: "025SECSU" },
+      { name: "SARVODAY PRAJAPATI", father: "BABULAL PRAJAPATI", class: "6th", roll: "6", admitId: "025SECK9" },
+      { name: "ANJALI PRAJAPATI", father: "KAILASH PRAJAPATI", class: "8th", roll: "8", admitId: "025SECRS" },
+      { name: "ANSHIKA PRAJAPATI", father: "MUSAFIR PRAJAPATI", class: "4th", roll: "7", admitId: "025SECRS" },
+      { name: "AARADHYA PRAJAPATI", father: "BABULAL PRAJAPATI", class: "U.K.G", roll: "2", admitId: "025SECPV" }
+    ];
+
+    function getSubjects(name) {
+      if (name.toLowerCase().includes("suraj")) {
+        return [
+          { subject: "Art", date: "21 November 2025", day: "Friday" },
+          { subject: "Hindi", date: "22 November 2025", day: "Saturday" },
+          { subject: "Science", date: "23 November 2025", day: "Sunday" },
+          { subject: "Maths", date: "24 November 2025", day: "Monday" }
+        ];
+      } else {
+        return [
+          { subject: "Art", date: "21 November 2025", day: "Friday" },
+          { subject: "Science", date: "22 November 2025", day: "Saturday" },
+          { subject: "English", date: "23 November 2025", day: "Sunday" },
+          { subject: "Maths", date: "24 November 2025", day: "Monday" }
+        ];
+      }
+    }
+
+    const resultDiv = document.getElementById('result');
+    const nameEl = document.getElementById('nameInput');
+    const rollEl = document.getElementById('rollInput');
+    const btn = document.getElementById('searchBtn');
+
+    function clearResult() { resultDiv.innerHTML = ''; }
+
+    function searchStudent() {
+      clearResult();
+      const nameVal = nameEl.value.trim().toLowerCase();
+      const rollVal = rollEl.value.trim();
+
+      if (!nameVal || !rollVal) {
+        alert('Please enter both Name and Roll Number.');
+        return;
+      }
+
+      // find student only when both match
+      const found = students.find(s => 
+        s.name.toLowerCase() === nameVal && s.roll === rollVal
+      );
+
+      if (!found) {
+        resultDiv.innerHTML = `<p style="color:red;text-align:center;">No record found. Please check both Name and Roll Number.</p>`;
+        return;
+      }
+
+      const subjects = getSubjects(found.name);
+      const rows = subjects.map(s => 
+        `<tr><td>${s.subject}</td><td>${s.date}</td><td>${s.day}</td></tr>`
+      ).join('');
+
+      resultDiv.innerHTML = `
+        <div class="card" id="admitCard">
+          <h3>First Term Examination 2025</h3>
+          <p><b>Name:</b> ${found.name}</p>
+          <p><b>Father's Name:</b> ${found.father}</p>
+          <p><b>Class:</b> ${found.class}</p>
+          <p><b>Roll Number:</b> ${found.roll}</p>
+          <p><b>Admit Card ID:</b> ${found.admitId}</p>
+
+          <table>
+            <tr><th>Subject</th><th>Date</th><th>Day</th></tr>
+            ${rows}
+          </table>
+
+          <button class="print-btn" onclick="window.print()">🖨️ Print Admit Card</button>
+          <div class="note"><b>Note:</b> Carry this admit card to the exam hall.</div>
+        </div>
+      `;
+      document.getElementById('admitCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    btn.addEventListener('click', searchStudent);
+    [nameEl, rollEl].forEach(input => input.addEventListener('keyup', e => {
+      if (e.key === 'Enter') searchStudent();
+    }));
+  </script>
+</body>
+</html>
